@@ -18,6 +18,9 @@ export function rodarTestes(cloneUrl, branch) {
     const inicio = Date.now()
 
     exec(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 }, async (err, stdout, stderr) => {
+      console.log('[testes] stdout:', stdout?.slice(0, 2000))
+      console.log('[testes] stderr:', stderr?.slice(0, 2000))
+      console.log('[testes] err:', err?.message)
       const duracao = Math.round((Date.now() - inicio) / 1000)
       const passou = !err
 
