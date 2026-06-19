@@ -8,7 +8,7 @@ export function rodarTestes(cloneUrl, branch) {
   return new Promise((resolve) => {
     const cmd = [
       `rm -rf ${PROJETO_DIR}`,
-      `git clone --depth=1 --branch ${branch} ${cloneUrl} ${PROJETO_DIR}`,
+      `git clone --depth=1 --branch ${branch} ${cloneUrl.replace('https://', `https://${process.env.GITHUB_TOKEN}@`)} ${PROJETO_DIR}`,
       `cd ${PROJETO_DIR}`,
       `npm ci`,
       `npx playwright install chromium --with-deps`,
