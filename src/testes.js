@@ -10,7 +10,7 @@ export function rodarTestes(cloneUrl, branch) {
       `rm -rf ${PROJETO_DIR}`,
       `git clone --depth=1 --branch ${branch} ${cloneUrl.replace('https://', `https://${process.env.GITHUB_TOKEN}@`)} ${PROJETO_DIR}`,
       `cd ${PROJETO_DIR}`,
-      `npm ci`,
+      `HUSKY=0 npm ci`,
       `npx playwright install chromium --with-deps`,
       `npx playwright test --reporter=json 2>&1 | tee ${RESULTADO_JSON}`,
     ].join(' && ')
