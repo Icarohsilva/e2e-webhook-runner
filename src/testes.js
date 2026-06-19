@@ -14,8 +14,8 @@ export function rodarTestes(cloneUrl, branch) {
       `git clone --depth=1 --branch ${branch} ${urlComToken} ${PROJETO_DIR}`,
       `cd ${PROJETO_DIR}`,
       `npm ci --ignore-scripts`,
-      `npx playwright install chromium --with-deps`,
-      `npx playwright test --reporter=json 2>&1 | tee ${RESULTADO_JSON}`,
+      `npx playwright install chromium`,
+      `HEADLESS=${process.env.HEADLESS ?? 'true'} ZENDESK_USER=${process.env.ZENDESK_USER} ZENDESK_PASSWORD=${process.env.ZENDESK_PASSWORD} ZENDESK_SUBDOMAIN=${process.env.ZENDESK_SUBDOMAIN} ZENDESK_MFA_SECRET=${process.env.ZENDESK_MFA_SECRET} ZENDESK_API_EMAIL=${process.env.ZENDESK_API_EMAIL} ZENDESK_API_TOKEN=${process.env.ZENDESK_API_TOKEN} ZENDESK_TEST_USER_NAME=${process.env.ZENDESK_TEST_USER_NAME} ZENDESK_TEST_USER_EMAIL=${process.env.ZENDESK_TEST_USER_EMAIL} ZENDESK_TEST_TICKET_ID=${process.env.ZENDESK_TEST_TICKET_ID} npx playwright test --reporter=json 2>&1 | tee ${RESULTADO_JSON}`,
     ].join(' && ')
 
     const inicio = Date.now()
