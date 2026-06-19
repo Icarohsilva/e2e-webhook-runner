@@ -1,0 +1,17 @@
+{
+  "name": "e2e-webhook-runner",
+  "version": "1.0.0",
+  "description": "Servidor que escuta webhooks do GitHub e roda testes E2E automaticamente",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
