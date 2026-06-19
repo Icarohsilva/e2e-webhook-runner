@@ -1,43 +1,40 @@
-import nodemailer from 'nodemailer'
-
-function criarTransporte() {
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_FROM,
-      pass: process.env.EMAIL_PASSWORD,
+async function enviarEmail({ assunto, html }) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      from: 'CI Bot <onboarding@resend.dev>',
+      to: process.env.EMAIL_TO.split(',').map(e => e.trim()),
+      subject: assunto,
+      html,
+    }),
   })
+
+  if (!response.ok) {
+    const erro = await response.text()
+    throw new Error(`Resend erro: ${erro}`)
+  }
+
+  console.log(`[email] Enviado para ${process.env.EMAIL_TO}`)
 }
 
 export async function enviarAlertaFalha({ info, resultado }) {
-  const transporte = criarTransporte()
   const projeto = process.env.PROJECT_NAME ?? info.repositorio
-  const assunto = `🔴 [E2E] Falha nos testes — ${projeto} (${info.branch} · ${info.commit})`
-
-  await transporte.sendMail({
-    from: `"CI Bot" <${process.env.EMAIL_FROM}>`,
-    to: process.env.EMAIL_TO,
-    subject: assunto,
+  await enviarEmail({
+    assunto: `🔴 [E2E] Falha nos testes — ${projeto} (${info.branch} · ${info.commit})`,
     html: gerarHTMLFalha({ info, resultado, projeto }),
   })
-
-  console.log(`[email] Alerta de falha enviado para ${process.env.EMAIL_TO}`)
 }
 
 export async function enviarAlertaRecuperacao({ info, resultado }) {
-  const transporte = criarTransporte()
   const projeto = process.env.PROJECT_NAME ?? info.repositorio
-  const assunto = `✅ [E2E] Testes recuperados — ${projeto} (${info.branch} · ${info.commit})`
-
-  await transporte.sendMail({
-    from: `"CI Bot" <${process.env.EMAIL_FROM}>`,
-    to: process.env.EMAIL_TO,
-    subject: assunto,
+  await enviarEmail({
+    assunto: `✅ [E2E] Testes recuperados — ${projeto} (${info.branch} · ${info.commit})`,
     html: gerarHTMLRecuperacao({ info, resultado, projeto }),
   })
-
-  console.log(`[email] Alerta de recuperação enviado para ${process.env.EMAIL_TO}`)
 }
 
 function gerarHTMLFalha({ info, resultado, projeto }) {

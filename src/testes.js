@@ -1,16 +1,19 @@
 import { exec } from 'child_process'
-import { readFile, unlink, rm } from 'fs/promises'
+import { readFile, unlink } from 'fs/promises'
 
 const PROJETO_DIR = '/tmp/projeto-e2e'
 const RESULTADO_JSON = '/tmp/playwright-result.json'
 
 export function rodarTestes(cloneUrl, branch) {
   return new Promise((resolve) => {
+    const token = process.env.GITHUB_TOKEN ?? ''
+    const urlComToken = cloneUrl.replace('https://', `https://${token}@`)
+
     const cmd = [
       `rm -rf ${PROJETO_DIR}`,
-      `git clone --depth=1 --branch ${branch} ${cloneUrl.replace('https://', `https://${process.env.GITHUB_TOKEN}@`)} ${PROJETO_DIR}`,
+      `git clone --depth=1 --branch ${branch} ${urlComToken} ${PROJETO_DIR}`,
       `cd ${PROJETO_DIR}`,
-      `HUSKY=0 npm ci`,
+      `npm ci --ignore-scripts`,
       `npx playwright install chromium --with-deps`,
       `npx playwright test --reporter=json 2>&1 | tee ${RESULTADO_JSON}`,
     ].join(' && ')
@@ -18,11 +21,12 @@ export function rodarTestes(cloneUrl, branch) {
     const inicio = Date.now()
 
     exec(cmd, { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 }, async (err, stdout, stderr) => {
-      console.log('[testes] stdout:', stdout?.slice(0, 2000))
-      console.log('[testes] stderr:', stderr?.slice(0, 2000))
-      console.log('[testes] err:', err?.message)
       const duracao = Math.round((Date.now() - inicio) / 1000)
       const passou = !err
+
+      console.log('[testes] stdout:', stdout?.slice(0, 2000))
+      console.log('[testes] stderr:', stderr?.slice(0, 2000))
+      if (err) console.log('[testes] err:', err?.message?.slice(0, 1000))
 
       let detalhes = {
         passou,
