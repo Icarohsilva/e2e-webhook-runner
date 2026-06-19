@@ -67,6 +67,10 @@ servidor.listen(PORT, () => {
   console.log(`[server] Aguardando pushes na branch "${WATCH_BRANCH}"`)
 })
 
+// Mantém o processo vivo durante testes longos
+servidor.keepAliveTimeout = 620000
+servidor.headersTimeout = 620000
+
 async function rodarEmBackground(info) {
   rodandoAgora = true
 
